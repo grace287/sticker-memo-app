@@ -1,22 +1,35 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useMemos } from "@/hooks/use-memos";
 import { MemoForm } from "./MemoForm";
 import { MemoCard } from "./MemoCard";
+import { CategoryFilterDropdown, type CategoryFilterValue } from "./CategoryFilterDropdown";
+import { DEFAULT_CATEGORY } from "@/types/memo";
 
 const STICK_ANIMATION_MS = 480;
 const DROPPABLE_ID = "memo-list";
+const FILTER_ALL = "전체";
+
+function getMemoCategory(memo: { category?: string }) {
+  return memo.category || DEFAULT_CATEGORY;
+}
 
 export function MemoList() {
   const { memos, addMemo, updateMemo, deleteMemo, reorderMemos, hydrated } =
     useMemos();
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilterValue>(FILTER_ALL);
+
+  const filteredMemos = useMemo(() => {
+    if (categoryFilter === FILTER_ALL) return memos;
+    return memos.filter((m) => getMemoCategory(m) === categoryFilter);
+  }, [memos, categoryFilter]);
 
   const handleAddMemo = useCallback(
-    (title: string, content: string) => {
-      const id = addMemo(title, content);
+    (title: string, content: string, category: string) => {
+      const id = addMemo(title, content, category);
       setLastAddedId(id);
       setTimeout(() => setLastAddedId(null), STICK_ANIMATION_MS);
     },
@@ -28,9 +41,14 @@ export function MemoList() {
       if (!result.destination || result.destination.index === result.source.index) {
         return;
       }
-      reorderMemos(result.source.index, result.destination.index);
+      const fromId = filteredMemos[result.source.index].id;
+      const toId = filteredMemos[result.destination.index].id;
+      const fullFrom = memos.findIndex((m) => m.id === fromId);
+      const fullTo = memos.findIndex((m) => m.id === toId);
+      if (fullFrom === -1 || fullTo === -1) return;
+      reorderMemos(fullFrom, fullTo);
     },
-    [reorderMemos]
+    [reorderMemos, filteredMemos, memos]
   );
 
   if (!hydrated) {
@@ -43,7 +61,13 @@ export function MemoList() {
 
   return (
     <div className="space-y-6">
-      <MemoForm onSubmit={handleAddMemo} />
+      <div className="flex flex-wrap items-center gap-3">
+        <MemoForm onSubmit={handleAddMemo} />
+        <CategoryFilterDropdown
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+        />
+      </div>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId={DROPPABLE_ID}>
           {(droppableProvided) => (
@@ -52,7 +76,7 @@ export function MemoList() {
               {...droppableProvided.droppableProps}
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start content-start"
             >
-              {memos.map((memo, index) => (
+              {filteredMemos.map((memo, index) => (
                 <Draggable
                   key={memo.id}
                   draggableId={memo.id}
@@ -81,9 +105,11 @@ export function MemoList() {
           )}
         </Droppable>
       </DragDropContext>
-      {memos.length === 0 && (
+      {filteredMemos.length === 0 && (
         <p className="text-center text-muted-foreground py-8">
-          메모가 없습니다. 위에서 새 메모를 추가해 보세요.
+          {categoryFilter === FILTER_ALL
+            ? "메모가 없습니다. 위에서 새 메모를 추가해 보세요."
+            : "이 카테고리의 메모가 없습니다."}
         </p>
       )}
     </div>

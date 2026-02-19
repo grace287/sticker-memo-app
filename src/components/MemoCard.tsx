@@ -2,17 +2,23 @@
 
 import { useState } from "react";
 import type { Memo } from "@/types/memo";
-import { Pencil, Trash2 } from "lucide-react";
+import { MEMO_CATEGORIES, DEFAULT_CATEGORY } from "@/types/memo";
+import { Pencil, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPostitStyle } from "@/lib/postit-colors";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 interface MemoCardProps {
   memo: Memo;
   index: number;
   justAdded?: boolean;
-  onUpdate: (id: string, updates: { title?: string; content?: string }) => void;
+  onUpdate: (id: string, updates: { title?: string; content?: string; category?: string }) => void;
   onDelete: (id: string) => void;
 }
 
@@ -47,11 +53,13 @@ export function MemoCard({
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
+  const [category, setCategory] = useState(memo.category || DEFAULT_CATEGORY);
 
   const postitStyle = getPostitStyle(memo, index);
+  const displayCategory = memo.category || DEFAULT_CATEGORY;
 
   const handleSave = () => {
-    onUpdate(memo.id, { title, content });
+    onUpdate(memo.id, { title, content, category });
     setEditing(false);
   };
 
@@ -82,6 +90,25 @@ export function MemoCard({
           />
         </CardHeader>
         <CardContent className="p-4 pt-0 space-y-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-xs opacity-80 hover:opacity-100 border border-current/30 rounded px-2 py-1"
+                style={{ color: postitStyle.color }}
+              >
+                {category}
+                <ChevronDown className="size-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {MEMO_CATEGORIES.map((cat) => (
+                <DropdownMenuItem key={cat} onClick={() => setCategory(cat)}>
+                  {cat}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -98,6 +125,7 @@ export function MemoCard({
               onClick={() => {
                 setTitle(memo.title);
                 setContent(memo.content);
+                setCategory(memo.category || DEFAULT_CATEGORY);
                 setEditing(false);
               }}
             >
@@ -164,6 +192,9 @@ export function MemoCard({
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-1 flex flex-col">
+        <span className="text-[10px] font-medium opacity-75">
+          {displayCategory}
+        </span>
         {memo.content ? (
           <p className="text-sm line-clamp-4 whitespace-pre-wrap flex-1 opacity-90">
             {memo.content}

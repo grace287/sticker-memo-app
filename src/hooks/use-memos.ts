@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Memo } from "@/types/memo";
+import { DEFAULT_CATEGORY } from "@/types/memo";
 import { POSTIT_COLORS } from "@/lib/postit-colors";
 
 /** 로컬 스토리지에 저장할 때 사용하는 키 (앱 껐다 켜도 이 키로 읽음) */
@@ -49,23 +50,30 @@ export function useMemos() {
     saveMemos(memos);
   }, [memos, hydrated]);
 
-  const addMemo = useCallback((title: string, content: string) => {
-    const now = Date.now();
-    const colorIndex = Math.floor(Math.random() * POSTIT_COLORS.length);
-    const newMemo: Memo = {
-      id: crypto.randomUUID(),
-      title: title.trim() || "제목 없음",
-      content: content.trim(),
-      createdAt: now,
-      updatedAt: now,
-      colorIndex,
-    };
-    setMemos((prev) => [newMemo, ...prev]);
-    return newMemo.id;
-  }, []);
+  const addMemo = useCallback(
+    (title: string, content: string, category: string = DEFAULT_CATEGORY) => {
+      const now = Date.now();
+      const colorIndex = Math.floor(Math.random() * POSTIT_COLORS.length);
+      const newMemo: Memo = {
+        id: crypto.randomUUID(),
+        title: title.trim() || "제목 없음",
+        content: content.trim(),
+        createdAt: now,
+        updatedAt: now,
+        colorIndex,
+        category: category || DEFAULT_CATEGORY,
+      };
+      setMemos((prev) => [newMemo, ...prev]);
+      return newMemo.id;
+    },
+    []
+  );
 
   const updateMemo = useCallback(
-    (id: string, updates: { title?: string; content?: string }) => {
+    (
+      id: string,
+      updates: { title?: string; content?: string; category?: string }
+    ) => {
       const now = Date.now();
       setMemos((prev) =>
         prev.map((m) =>
@@ -75,6 +83,7 @@ export function useMemos() {
                 ...updates,
                 title: (updates.title ?? m.title).trim() || m.title,
                 content: (updates.content ?? m.content).trim() ?? m.content,
+                category: updates.category ?? m.category,
                 updatedAt: now,
               }
             : m

@@ -1,25 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { MEMO_CATEGORIES, DEFAULT_CATEGORY } from "@/types/memo";
 
 interface MemoFormProps {
-  onSubmit: (title: string, content: string) => void;
+  onSubmit: (title: string, content: string, category: string) => void;
 }
 
 export function MemoForm({ onSubmit }: MemoFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState<string>(DEFAULT_CATEGORY);
   const [expanded, setExpanded] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() && !content.trim()) return;
-    onSubmit(title, content);
+    onSubmit(title, content, category);
     setTitle("");
     setContent("");
+    setCategory(DEFAULT_CATEGORY);
     setExpanded(false);
   };
 
@@ -52,6 +62,31 @@ export function MemoForm({ onSubmit }: MemoFormProps) {
           />
         </CardHeader>
         <CardContent className="space-y-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full justify-between"
+              >
+                <span className="text-muted-foreground">카테고리</span>
+                <span className="font-medium">{category}</span>
+                <ChevronDown className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
+              <DropdownMenuLabel>카테고리 선택</DropdownMenuLabel>
+              {MEMO_CATEGORIES.map((cat) => (
+                <DropdownMenuItem
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                >
+                  {cat}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
