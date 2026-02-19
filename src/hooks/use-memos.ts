@@ -76,5 +76,14 @@ export function useMemos() {
     setMemos((prev) => prev.filter((m) => m.id !== id));
   }, []);
 
-  return { memos, addMemo, updateMemo, deleteMemo, hydrated };
+  const reorderMemos = useCallback((sourceIndex: number, destinationIndex: number) => {
+    setMemos((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(sourceIndex, 1);
+      next.splice(destinationIndex, 0, removed);
+      return next;
+    });
+  }, []);
+
+  return { memos, addMemo, updateMemo, deleteMemo, reorderMemos, hydrated };
 }
