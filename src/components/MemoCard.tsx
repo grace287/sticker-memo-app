@@ -113,11 +113,16 @@ export function MemoCard({
   }
 
   return (
-    <div className={cn(justAdded && "animate-stick")}>
+    <div
+        className={cn(
+          "transition-[transform,box-shadow] duration-300 ease-out",
+          "hover:scale-[1.03] hover:shadow-xl hover:shadow-black/15",
+          justAdded && "animate-stick"
+        )}
+      >
       <Card
         className={cn(
-          "group border-0 overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg",
-          "min-h-[180px] flex flex-col"
+          "group border-0 overflow-hidden flex flex-col min-h-[180px]"
         )}
         style={postitStyle}
       >
@@ -125,7 +130,7 @@ export function MemoCard({
         <h3 className="text-lg font-semibold truncate flex-1 leading-tight">
           {memo.title}
         </h3>
-        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-out shrink-0">
           <Button
             type="button"
             variant="ghost"
