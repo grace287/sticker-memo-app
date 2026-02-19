@@ -4,8 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import type { Memo } from "@/types/memo";
 import { POSTIT_COLORS } from "@/lib/postit-colors";
 
+/** 로컬 스토리지에 저장할 때 사용하는 키 (앱 껐다 켜도 이 키로 읽음) */
 const STORAGE_KEY = "sticker-memo-app-memos";
 
+/**
+ * 앱 시작 시 로컬 스토리지에서 메모 목록을 읽어옵니다.
+ * 서버 렌더링(SSR)에서는 window가 없으므로 빈 배열을 반환합니다.
+ */
 function loadMemos(): Memo[] {
   if (typeof window === "undefined") return [];
   try {
@@ -18,6 +23,10 @@ function loadMemos(): Memo[] {
   }
 }
 
+/**
+ * 메모 목록을 로컬 스토리지에 저장합니다.
+ * 추가/수정/삭제/순서 변경 시 memos 상태가 바뀌고, useEffect에서 이 함수가 호출됩니다.
+ */
 function saveMemos(memos: Memo[]) {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
@@ -25,13 +34,16 @@ function saveMemos(memos: Memo[]) {
 
 export function useMemos() {
   const [memos, setMemos] = useState<Memo[]>([]);
+  /** SSR 후 클라이언트에서 스토리지를 읽었는지 여부 (로딩 완료 후에만 저장 실행) */
   const [hydrated, setHydrated] = useState(false);
 
+  // 1) 앱/페이지 로드 시: 로컬 스토리지에서 불러오기 (한 번만 실행)
   useEffect(() => {
     setMemos(loadMemos());
     setHydrated(true);
   }, []);
 
+  // 2) memos가 바뀔 때마다: 로컬 스토리지에 저장 (추가/수정/삭제/순서 변경 모두 반영)
   useEffect(() => {
     if (!hydrated) return;
     saveMemos(memos);
