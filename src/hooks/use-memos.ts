@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Memo } from "@/types/memo";
+import { POSTIT_COLORS } from "@/lib/postit-colors";
 
 const STORAGE_KEY = "sticker-memo-app-memos";
 
@@ -38,12 +39,14 @@ export function useMemos() {
 
   const addMemo = useCallback((title: string, content: string) => {
     const now = Date.now();
+    const colorIndex = Math.floor(Math.random() * POSTIT_COLORS.length);
     const newMemo: Memo = {
       id: crypto.randomUUID(),
       title: title.trim() || "제목 없음",
       content: content.trim(),
       createdAt: now,
       updatedAt: now,
+      colorIndex,
     };
     setMemos((prev) => [newMemo, ...prev]);
     return newMemo.id;

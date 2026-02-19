@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 interface MemoCardProps {
   memo: Memo;
   index: number;
+  justAdded?: boolean;
   onUpdate: (id: string, updates: { title?: string; content?: string }) => void;
   onDelete: (id: string) => void;
 }
@@ -36,12 +37,18 @@ function formatDate(ms: number) {
   });
 }
 
-export function MemoCard({ memo, index, onUpdate, onDelete }: MemoCardProps) {
+export function MemoCard({
+  memo,
+  index,
+  justAdded = false,
+  onUpdate,
+  onDelete,
+}: MemoCardProps) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
 
-  const postitStyle = getPostitStyle(memo.id, index);
+  const postitStyle = getPostitStyle(memo, index);
 
   const handleSave = () => {
     onUpdate(memo.id, { title, content });
@@ -106,13 +113,14 @@ export function MemoCard({ memo, index, onUpdate, onDelete }: MemoCardProps) {
   }
 
   return (
-    <Card
-      className={cn(
-        "group border-0 overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg",
-        "min-h-[180px] flex flex-col"
-      )}
-      style={postitStyle}
-    >
+    <div className={cn(justAdded && "animate-stick")}>
+      <Card
+        className={cn(
+          "group border-0 overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg",
+          "min-h-[180px] flex flex-col"
+        )}
+        style={postitStyle}
+      >
       <CardHeader className="p-4 pb-1 flex flex-row items-start justify-between gap-2">
         <h3 className="text-lg font-semibold truncate flex-1 leading-tight">
           {memo.title}
@@ -151,5 +159,6 @@ export function MemoCard({ memo, index, onUpdate, onDelete }: MemoCardProps) {
         <p className="text-xs mt-2 opacity-75">{formatDate(memo.updatedAt)}</p>
       </CardContent>
     </Card>
+    </div>
   );
 }

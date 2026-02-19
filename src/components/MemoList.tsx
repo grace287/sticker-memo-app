@@ -1,11 +1,24 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { useMemos } from "@/hooks/use-memos";
 import { MemoForm } from "./MemoForm";
 import { MemoCard } from "./MemoCard";
 
+const STICK_ANIMATION_MS = 480;
+
 export function MemoList() {
   const { memos, addMemo, updateMemo, deleteMemo, hydrated } = useMemos();
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+
+  const handleAddMemo = useCallback(
+    (title: string, content: string) => {
+      const id = addMemo(title, content);
+      setLastAddedId(id);
+      setTimeout(() => setLastAddedId(null), STICK_ANIMATION_MS);
+    },
+    [addMemo]
+  );
 
   if (!hydrated) {
     return (
@@ -17,13 +30,14 @@ export function MemoList() {
 
   return (
     <div className="space-y-6">
-      <MemoForm onSubmit={addMemo} />
+      <MemoForm onSubmit={handleAddMemo} />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {memos.map((memo, index) => (
           <MemoCard
             key={memo.id}
             memo={memo}
             index={index}
+            justAdded={memo.id === lastAddedId}
             onUpdate={updateMemo}
             onDelete={deleteMemo}
           />

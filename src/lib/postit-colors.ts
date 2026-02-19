@@ -8,9 +8,14 @@ export const POSTIT_COLORS = [
   { bg: "#bae6fd", text: "#0c4a6e", shadow: "rgba(12,74,110,0.2)" },  // 스카이
 ] as const;
 
-export function getPostitStyle(memoId: string, index: number) {
-  const hash = [...memoId].reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const colorIndex = Math.abs(hash) % POSTIT_COLORS.length;
+export function getPostitStyle(
+  memo: { id: string; colorIndex?: number },
+  index: number
+) {
+  const colorIndex =
+    memo.colorIndex ??
+    Math.abs([...memo.id].reduce((acc, c) => acc + c.charCodeAt(0), 0)) %
+      POSTIT_COLORS.length;
   const color = POSTIT_COLORS[colorIndex];
   const rotations = [-1.2, 0.8, -0.6, 1.4, -0.9, 0.5];
   const rotation = rotations[index % rotations.length];

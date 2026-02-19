@@ -127,3 +127,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 포스트잇 '착' 붙는 애니메이션 */
+@keyframes stick-in {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-stick {
+  animation: stick-in 0.48s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
