@@ -8,6 +8,8 @@ export interface Memo {
   colorIndex?: number;
   /** 카테고리. 없으면 "미분류"로 취급 */
   category?: string;
+  /** 고정(핀) 시 상단 유지 */
+  pinned?: boolean;
 }
 
 /** 메모 카테고리 목록 (필터/선택용) */

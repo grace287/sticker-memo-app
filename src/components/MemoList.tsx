@@ -44,13 +44,18 @@ export function MemoList() {
     };
   }, []);
 
+  // 고정(핀)된 메모를 상단에 유지한 뒤 카테고리·검색 필터 적용
+  const sortedMemos = useMemo(
+    () => [...memos.filter((m) => m.pinned), ...memos.filter((m) => !m.pinned)],
+    [memos]
+  );
   const filteredMemos = useMemo(() => {
-    let list = memos;
+    let list = sortedMemos;
     if (categoryFilter !== FILTER_ALL) {
       list = list.filter((m) => getMemoCategory(m) === categoryFilter);
     }
     return list.filter((m) => matchesSearch(m, searchQuery));
-  }, [memos, categoryFilter, searchQuery]);
+  }, [sortedMemos, categoryFilter, searchQuery]);
 
   const handleAddMemo = useCallback(
     (title: string, content: string, category: string) => {

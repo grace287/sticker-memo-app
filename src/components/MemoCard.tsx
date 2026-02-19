@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import type { Memo } from "@/types/memo";
 import { MEMO_CATEGORIES, DEFAULT_CATEGORY } from "@/types/memo";
-import { Pencil, Trash2, ChevronDown } from "lucide-react";
+import { Pencil, Trash2, ChevronDown, Pin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPostitStyle } from "@/lib/postit-colors";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -18,7 +18,7 @@ interface MemoCardProps {
   memo: Memo;
   index: number;
   justAdded?: boolean;
-  onUpdate: (id: string, updates: { title?: string; content?: string; category?: string }) => void;
+  onUpdate: (id: string, updates: { title?: string; content?: string; category?: string; pinned?: boolean }) => void;
   onDelete: (id: string) => void;
 }
 
@@ -176,6 +176,22 @@ export function MemoCard({
           {memo.title}
         </h3>
         <div className="flex items-center gap-1.5 shrink-0 translate-y-1 group-hover:translate-y-0 transition-transform duration-200 ease-out">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onUpdate(memo.id, { pinned: !memo.pinned })}
+            className={cn(
+              "h-8 w-8 rounded-full text-current opacity-0 group-hover:opacity-100",
+              "transition-[opacity,transform,box-shadow] duration-200 ease-out",
+              "hover:scale-110 active:scale-95",
+              "hover:shadow-md focus-visible:ring-2 focus-visible:ring-current/30",
+              memo.pinned && "opacity-100"
+            )}
+            aria-label={memo.pinned ? "고정 해제" : "상단에 고정"}
+          >
+            <Pin className={cn("size-4", memo.pinned && "fill-current")} />
+          </Button>
           <Button
             type="button"
             variant="ghost"

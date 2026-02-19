@@ -42,6 +42,8 @@ function migrateToMemo(raw: Record<string, unknown>): Memo {
       ? raw.category
       : DEFAULT_CATEGORY;
 
+  const pinned = raw.pinned === true;
+
   return {
     id,
     title,
@@ -49,6 +51,7 @@ function migrateToMemo(raw: Record<string, unknown>): Memo {
     createdAt,
     updatedAt,
     category,
+    pinned,
     ...(colorIndex !== undefined && { colorIndex }),
   };
 }
@@ -125,7 +128,12 @@ export function useMemos() {
   const updateMemo = useCallback(
     (
       id: string,
-      updates: { title?: string; content?: string; category?: string }
+      updates: {
+        title?: string;
+        content?: string;
+        category?: string;
+        pinned?: boolean;
+      }
     ) => {
       const now = Date.now();
       setMemos((prev) =>
@@ -137,6 +145,7 @@ export function useMemos() {
                 title: (updates.title ?? m.title).trim() || m.title,
                 content: (updates.content ?? m.content).trim() ?? m.content,
                 category: updates.category ?? m.category,
+                pinned: updates.pinned ?? m.pinned,
                 updatedAt: now,
               }
             : m
