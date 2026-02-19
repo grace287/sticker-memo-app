@@ -10,12 +10,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { MEMO_CATEGORIES } from "@/types/memo";
+import { MEMO_CATEGORIES, FILTER_ALL, type CategoryFilterValue } from "@/types/memo";
 import { cn } from "@/lib/utils";
 
-const FILTER_ALL = "전체";
-
-export type CategoryFilterValue = typeof FILTER_ALL | (typeof MEMO_CATEGORIES)[number];
+export type { CategoryFilterValue };
 
 interface CategoryFilterDropdownProps {
   value: CategoryFilterValue;

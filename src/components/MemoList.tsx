@@ -5,12 +5,11 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useMemos } from "@/hooks/use-memos";
 import { MemoForm } from "./MemoForm";
 import { MemoCard } from "./MemoCard";
-import { CategoryFilterDropdown, type CategoryFilterValue } from "./CategoryFilterDropdown";
-import { DEFAULT_CATEGORY } from "@/types/memo";
+import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
+import { DEFAULT_CATEGORY, FILTER_ALL, type CategoryFilterValue } from "@/types/memo";
 
 const STICK_ANIMATION_MS = 480;
 const DROPPABLE_ID = "memo-list";
-const FILTER_ALL = "전체";
 
 function getMemoCategory(memo: { category?: string }) {
   return memo.category || DEFAULT_CATEGORY;
