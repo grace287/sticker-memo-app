@@ -4,9 +4,13 @@ import { useState } from "react";
 import type { Memo } from "@/types/memo";
 import { Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPostitStyle } from "@/lib/postit-colors";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface MemoCardProps {
   memo: Memo;
+  index: number;
   onUpdate: (id: string, updates: { title?: string; content?: string }) => void;
   onDelete: (id: string) => void;
 }
@@ -32,10 +36,12 @@ function formatDate(ms: number) {
   });
 }
 
-export function MemoCard({ memo, onUpdate, onDelete }: MemoCardProps) {
+export function MemoCard({ memo, index, onUpdate, onDelete }: MemoCardProps) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
+
+  const postitStyle = getPostitStyle(memo.id, index);
 
   const handleSave = () => {
     onUpdate(memo.id, { title, content });
@@ -50,81 +56,100 @@ export function MemoCard({ memo, onUpdate, onDelete }: MemoCardProps) {
 
   if (editing) {
     return (
-      <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full bg-transparent text-lg font-semibold text-card-foreground focus:outline-none border-b border-transparent focus:border-border"
-          autoFocus
-        />
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={4}
-          className="w-full resize-none bg-transparent text-card-foreground focus:outline-none text-sm border-b border-transparent focus:border-border"
-        />
-        <div className="flex gap-2 justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              setTitle(memo.title);
-              setContent(memo.content);
-              setEditing(false);
-            }}
-            className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            취소
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="px-3 py-1.5 rounded-lg text-sm bg-primary text-primary-foreground hover:opacity-90"
-          >
-            저장
-          </button>
-        </div>
-      </div>
+      <Card
+        className="border-0 shadow-md"
+        style={{
+          ...postitStyle,
+          minHeight: "200px",
+        }}
+      >
+        <CardHeader className="p-4 pb-2">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full bg-transparent text-lg font-semibold focus:outline-none border-b border-current/30 focus:border-current/60 placeholder:opacity-70"
+            placeholder="제목"
+            style={{ color: postitStyle.color }}
+            autoFocus
+          />
+        </CardHeader>
+        <CardContent className="p-4 pt-0 space-y-3">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={4}
+            className="w-full resize-none bg-transparent text-sm focus:outline-none border-b border-current/30 focus:border-current/60 placeholder:opacity-70"
+            placeholder="내용"
+            style={{ color: postitStyle.color }}
+          />
+          <div className="flex gap-2 justify-end pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setTitle(memo.title);
+                setContent(memo.content);
+                setEditing(false);
+              }}
+            >
+              취소
+            </Button>
+            <Button type="button" size="sm" onClick={handleSave}>
+              저장
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div
+    <Card
       className={cn(
-        "group rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+        "group border-0 overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg",
+        "min-h-[180px] flex flex-col"
       )}
+      style={postitStyle}
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-lg font-semibold text-card-foreground truncate flex-1">
+      <CardHeader className="p-4 pb-1 flex flex-row items-start justify-between gap-2">
+        <h3 className="text-lg font-semibold truncate flex-1 leading-tight">
           {memo.title}
         </h3>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-          <button
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setEditing(true)}
-            className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-8 w-8 text-current hover:bg-black/10"
             aria-label="수정"
           >
             <Pencil className="size-4" />
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleDelete}
-            className="p-1.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            className="h-8 w-8 text-current hover:bg-black/15 hover:text-red-700"
             aria-label="삭제"
           >
             <Trash2 className="size-4" />
-          </button>
+          </Button>
         </div>
-      </div>
-      {memo.content ? (
-        <p className="mt-2 text-sm text-muted-foreground line-clamp-3 whitespace-pre-wrap">
-          {memo.content}
-        </p>
-      ) : null}
-      <p className="mt-2 text-xs text-muted-foreground">
-        {formatDate(memo.updatedAt)}
-      </p>
-    </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-0 flex-1 flex flex-col">
+        {memo.content ? (
+          <p className="text-sm line-clamp-4 whitespace-pre-wrap flex-1 opacity-90">
+            {memo.content}
+          </p>
+        ) : (
+          <p className="text-sm opacity-60 italic flex-1">내용 없음</p>
+        )}
+        <p className="text-xs mt-2 opacity-75">{formatDate(memo.updatedAt)}</p>
+      </CardContent>
+    </Card>
   );
 }

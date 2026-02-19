@@ -2,7 +2,7 @@ import { MemoList } from "@/components/MemoList";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <h1 className="text-xl font-bold text-foreground">스티커 메모</h1>

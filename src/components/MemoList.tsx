@@ -16,13 +16,14 @@ export function MemoList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <MemoForm onSubmit={addMemo} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {memos.map((memo) => (
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {memos.map((memo, index) => (
           <MemoCard
             key={memo.id}
             memo={memo}
+            index={index}
             onUpdate={updateMemo}
             onDelete={deleteMemo}
           />

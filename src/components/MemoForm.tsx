@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface MemoFormProps {
   onSubmit: (title: string, content: string) => void;
@@ -23,56 +25,56 @@ export function MemoForm({ onSubmit }: MemoFormProps) {
 
   if (!expanded) {
     return (
-      <button
-        type="button"
-        onClick={() => setExpanded(true)}
-        className="flex items-center justify-center gap-2 w-full min-h-[120px] rounded-xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted/50 hover:text-foreground transition-colors"
-      >
-        <Plus className="size-5" />
-        <span>새 메모 추가</span>
-      </button>
+      <Card className="border-2 border-dashed border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/30 transition-colors cursor-pointer">
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="flex items-center justify-center gap-2 w-full min-h-[140px] text-muted-foreground hover:text-foreground"
+        >
+          <Plus className="size-6" />
+          <span className="font-medium">새 메모 추가</span>
+        </button>
+      </Card>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3"
-    >
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="제목"
-        className="w-full bg-transparent text-lg font-semibold text-card-foreground placeholder:text-muted-foreground focus:outline-none"
-        autoFocus
-      />
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="내용을 입력하세요..."
-        rows={4}
-        className="w-full resize-none bg-transparent text-card-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
-      />
-      <div className="flex gap-2 justify-end">
-        <button
-          type="button"
-          onClick={() => {
-            setExpanded(false);
-            setTitle("");
-            setContent("");
-          }}
-          className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          취소
-        </button>
-        <button
-          type="submit"
-          className="px-3 py-1.5 rounded-lg text-sm bg-primary text-primary-foreground hover:opacity-90"
-        >
-          저장
-        </button>
-      </div>
-    </form>
+    <Card>
+      <form onSubmit={handleSubmit}>
+        <CardHeader className="space-y-1">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="제목"
+            className="w-full bg-transparent text-lg font-semibold text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0 border-b border-border focus:border-primary/50 pb-1"
+            autoFocus
+          />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="내용을 입력하세요..."
+            rows={4}
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          />
+          <div className="flex gap-2 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setExpanded(false);
+                setTitle("");
+                setContent("");
+              }}
+            >
+              취소
+            </Button>
+            <Button type="submit">저장</Button>
+          </div>
+        </CardContent>
+      </form>
+    </Card>
   );
 }
