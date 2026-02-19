@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useMemos } from "@/hooks/use-memos";
 import { MemoForm } from "./MemoForm";
@@ -21,6 +21,17 @@ export function MemoList() {
     useMemos();
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilterValue>(FILTER_ALL);
+  const stickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // unmount 시 또는 새 타이머 등록 전 기존 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (stickTimerRef.current !== null) {
+        clearTimeout(stickTimerRef.current);
+        stickTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const filteredMemos = useMemo(() => {
     if (categoryFilter === FILTER_ALL) return memos;
@@ -29,9 +40,16 @@ export function MemoList() {
 
   const handleAddMemo = useCallback(
     (title: string, content: string, category: string) => {
+      if (stickTimerRef.current !== null) {
+        clearTimeout(stickTimerRef.current);
+        stickTimerRef.current = null;
+      }
       const id = addMemo(title, content, category);
       setLastAddedId(id);
-      setTimeout(() => setLastAddedId(null), STICK_ANIMATION_MS);
+      stickTimerRef.current = setTimeout(() => {
+        setLastAddedId(null);
+        stickTimerRef.current = null;
+      }, STICK_ANIMATION_MS);
     },
     [addMemo]
   );
