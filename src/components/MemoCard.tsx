@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Memo } from "@/types/memo";
 import { MEMO_CATEGORIES, DEFAULT_CATEGORY } from "@/types/memo";
 import { Pencil, Trash2, ChevronDown } from "lucide-react";
@@ -54,6 +54,23 @@ export function MemoCard({
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
   const [category, setCategory] = useState(memo.category || DEFAULT_CATEGORY);
+
+  // 다른 메모로 바뀐 경우: 폼 상태 동기화 후 편집 모드 해제
+  useEffect(() => {
+    setTitle(memo.title);
+    setContent(memo.content);
+    setCategory(memo.category || DEFAULT_CATEGORY);
+    setEditing(false);
+  }, [memo.id]);
+
+  // 같은 메모가 부모에서 갱신된 경우(저장 등): 편집 중이 아닐 때만 폼 상태 동기화
+  useEffect(() => {
+    if (!editing) {
+      setTitle(memo.title);
+      setContent(memo.content);
+      setCategory(memo.category || DEFAULT_CATEGORY);
+    }
+  }, [editing, memo.title, memo.content, memo.category]);
 
   const postitStyle = getPostitStyle(memo, index);
   const displayCategory = memo.category || DEFAULT_CATEGORY;
