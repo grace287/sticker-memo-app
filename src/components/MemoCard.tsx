@@ -175,14 +175,14 @@ export function MemoCard({
         <h3 className="text-lg font-semibold truncate flex-1 leading-tight">
           {memo.title}
         </h3>
-        <div className="flex items-center gap-1.5 shrink-0 translate-y-1 group-hover:translate-y-0 transition-transform duration-200 ease-out">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 translate-y-1 group-hover:translate-y-0 transition-transform duration-200 ease-out">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={() => onUpdate(memo.id, { pinned: !memo.pinned })}
             className={cn(
-              "h-8 w-8 rounded-full text-current opacity-0 group-hover:opacity-100",
+              "h-9 w-9 min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0 rounded-full text-current opacity-0 group-hover:opacity-100",
               "transition-[opacity,transform,box-shadow] duration-200 ease-out",
               "hover:scale-110 active:scale-95",
               "hover:shadow-md focus-visible:ring-2 focus-visible:ring-current/30",
@@ -198,7 +198,7 @@ export function MemoCard({
             size="icon"
             onClick={() => setEditing(true)}
             className={cn(
-              "h-8 w-8 rounded-full text-current opacity-0 group-hover:opacity-100",
+              "h-9 w-9 min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0 rounded-full text-current opacity-0 group-hover:opacity-100",
               "transition-[opacity,transform,box-shadow] duration-200 ease-out",
               "hover:scale-110 hover:bg-black/12 active:scale-95",
               "hover:shadow-md focus-visible:ring-2 focus-visible:ring-current/30"
@@ -213,7 +213,7 @@ export function MemoCard({
             size="icon"
             onClick={handleDelete}
             className={cn(
-              "h-8 w-8 rounded-full text-current opacity-0 group-hover:opacity-100",
+              "h-9 w-9 min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0 rounded-full text-current opacity-0 group-hover:opacity-100",
               "transition-[opacity,transform,box-shadow] duration-200 ease-out delay-75",
               "hover:scale-110 hover:bg-red-500/20 hover:text-red-700 active:scale-95",
               "hover:shadow-md hover:shadow-red-900/10 focus-visible:ring-2 focus-visible:ring-red-500/40"

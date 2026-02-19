@@ -45,29 +45,25 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = getStoredTheme();
     const initial = stored ?? getSystemTheme();
     setThemeState(initial);
     applyTheme(initial);
-    setMounted(true);
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
     applyTheme(next);
-    localStorage.setItem(THEME_KEY, next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(THEME_KEY, next);
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme(theme === "light" ? "dark" : "light");
   }, [theme, setTheme]);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useMemos } from "@/hooks/use-memos";
 import { MemoForm } from "./MemoForm";
 import { MemoCard } from "./MemoCard";
 import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
+import { MemoGuideline, MEMO_GUIDELINE_DRAGGABLE_ID, GUIDELINE_HIDDEN_KEY } from "./MemoGuideline";
 import { DEFAULT_CATEGORY, FILTER_ALL, type CategoryFilterValue } from "@/types/memo";
 import type { Memo } from "@/types/memo";
 
@@ -32,7 +33,13 @@ export function MemoList() {
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilterValue>(FILTER_ALL);
   const [searchQuery, setSearchQuery] = useState("");
+  const [guidelineVisible, setGuidelineVisible] = useState(true);
   const stickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setGuidelineVisible(localStorage.getItem(GUIDELINE_HIDDEN_KEY) !== "true");
+  }, []);
 
   // unmount 시 또는 새 타이머 등록 전 기존 타이머 정리
   useEffect(() => {
@@ -74,19 +81,32 @@ export function MemoList() {
   );
 
   const handleDragEnd = useCallback(
-    (result: { destination?: { index: number } | null; source: { index: number } }) => {
-      if (!result.destination || result.destination.index === result.source.index) {
-        return;
-      }
-      const fromId = filteredMemos[result.source.index].id;
-      const toId = filteredMemos[result.destination.index].id;
+    (result: { destination?: { index: number } | null; source: { index: number; draggableId: string } }) => {
+      if (result.source.draggableId === MEMO_GUIDELINE_DRAGGABLE_ID) return;
+      if (!result.destination || result.destination.index === result.source.index) return;
+      const offset = guidelineVisible ? 1 : 0;
+      const sourceIdx = result.source.index - offset;
+      const destIdx = result.destination.index - offset;
+      if (sourceIdx < 0 || destIdx < 0 || sourceIdx >= filteredMemos.length || destIdx >= filteredMemos.length) return;
+      const fromId = filteredMemos[sourceIdx].id;
+      const toId = filteredMemos[destIdx].id;
       const fullFrom = memos.findIndex((m) => m.id === fromId);
       const fullTo = memos.findIndex((m) => m.id === toId);
       if (fullFrom === -1 || fullTo === -1) return;
       reorderMemos(fullFrom, fullTo);
     },
-    [reorderMemos, filteredMemos, memos]
+    [reorderMemos, filteredMemos, memos, guidelineVisible]
   );
+
+  const handleDismissGuideline = useCallback(() => {
+    localStorage.setItem(GUIDELINE_HIDDEN_KEY, "true");
+    setGuidelineVisible(false);
+  }, []);
+
+  const handleShowGuideline = useCallback(() => {
+    localStorage.removeItem(GUIDELINE_HIDDEN_KEY);
+    setGuidelineVisible(true);
+  }, []);
 
   if (!hydrated) {
     return (
@@ -97,38 +117,72 @@ export function MemoList() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <MemoForm onSubmit={handleAddMemo} />
-        <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="제목·내용 검색"
-            className="w-full h-9 pl-9 pr-3 rounded-md border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            aria-label="제목·내용 검색"
-          />
+    <div className="space-y-8">
+      <section aria-label="메모 작성 및 필터" className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch gap-3">
+          <MemoForm onSubmit={handleAddMemo} />
+          <div className="flex flex-col sm:flex-row flex-1 flex-wrap items-stretch sm:items-center gap-2 min-w-0">
+            <div className="relative flex-1 min-w-0 w-full sm:min-w-[160px] sm:max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="제목·내용 검색"
+                className="w-full h-10 sm:h-9 pl-9 pr-3 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-shadow touch-manipulation"
+                aria-label="제목·내용 검색"
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <CategoryFilterDropdown
+                value={categoryFilter}
+                onChange={setCategoryFilter}
+              />
+              {!guidelineVisible && (
+                <button
+                  type="button"
+                  onClick={handleShowGuideline}
+                  className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 py-2 min-h-[44px] sm:min-h-0"
+                >
+                  가이드라인 다시 보기
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-        <CategoryFilterDropdown
-          value={categoryFilter}
-          onChange={setCategoryFilter}
-        />
-      </div>
+      </section>
+
+      <section aria-label="메모 목록" className="min-h-[200px]">
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId={DROPPABLE_ID}>
           {(droppableProvided) => (
             <div
               ref={droppableProvided.innerRef}
               {...droppableProvided.droppableProps}
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start content-start"
+              className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start content-start"
             >
+              {guidelineVisible && (
+                <Draggable
+                  draggableId={MEMO_GUIDELINE_DRAGGABLE_ID}
+                  index={0}
+                  isDragDisabled
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <MemoGuideline onDismiss={handleDismissGuideline} />
+                    </div>
+                  )}
+                </Draggable>
+              )}
               {filteredMemos.map((memo, index) => (
                 <Draggable
                   key={memo.id}
                   draggableId={memo.id}
-                  index={index}
+                  index={index + (guidelineVisible ? 1 : 0)}
                 >
                   {(draggableProvided, snapshot) => (
                     <div
@@ -154,14 +208,27 @@ export function MemoList() {
         </Droppable>
       </DragDropContext>
       {filteredMemos.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">
-          {searchQuery.trim()
-            ? "검색 결과가 없습니다. 검색어나 카테고리를 바꿔 보세요."
-            : categoryFilter === FILTER_ALL
-              ? "메모가 없습니다. 위에서 새 메모를 추가해 보세요."
-              : "이 카테고리의 메모가 없습니다."}
-        </p>
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <FileText className="size-8 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground font-medium">
+            {searchQuery.trim()
+              ? "검색 결과가 없습니다"
+              : categoryFilter === FILTER_ALL
+                ? "메모가 없습니다"
+                : "이 카테고리의 메모가 없습니다"}
+          </p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xs">
+            {searchQuery.trim()
+              ? "검색어나 카테고리를 바꿔 보세요."
+              : categoryFilter === FILTER_ALL
+                ? "위 「새 메모 추가」를 눌러 첫 메모를 작성해 보세요."
+                : "다른 카테고리를 선택하거나 새 메모를 추가해 보세요."}
+          </p>
+        </div>
       )}
+      </section>
     </div>
   );
 }

@@ -10,41 +10,37 @@ export function ThemeToggle() {
   const isDark = theme === "dark";
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      onClick={toggleTheme}
-      aria-label={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
-      className={cn(
-        "relative h-9 w-9 rounded-full overflow-hidden",
-        "transition-all duration-300 ease-out",
-        "hover:scale-110 active:scale-95",
-        "hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-      )}
-    >
-      <span
+    <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 p-1">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => !isDark || toggleTheme()}
         className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out",
-          isDark
-            ? "rotate-0 scale-100 opacity-100"
-            : "-rotate-90 scale-0 opacity-0"
+          "gap-1.5 h-8 min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-0 px-2 sm:px-3 rounded-md transition-colors",
+          !isDark && "bg-background shadow-sm font-medium text-foreground"
         )}
-        aria-hidden={!isDark}
+        aria-pressed={!isDark}
+        aria-label="라이트 모드"
       >
-        <Moon className="size-4" />
-      </span>
-      <span
+        <Sun className="size-4 shrink-0" />
+        <span className="hidden sm:inline text-xs">라이트</span>
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => isDark || toggleTheme()}
         className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out",
-          !isDark
-            ? "rotate-0 scale-100 opacity-100"
-            : "rotate-90 scale-0 opacity-0"
+          "gap-1.5 h-8 min-h-[44px] min-w-[44px] sm:min-h-8 sm:min-w-0 px-2 sm:px-3 rounded-md transition-colors",
+          isDark && "bg-background shadow-sm font-medium text-foreground"
         )}
-        aria-hidden={isDark}
+        aria-pressed={isDark}
+        aria-label="다크 모드"
       >
-        <Sun className="size-4" />
-      </span>
-    </Button>
+        <Moon className="size-4 shrink-0" />
+        <span className="hidden sm:inline text-xs">다크</span>
+      </Button>
+    </div>
   );
 }

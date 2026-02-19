@@ -35,11 +35,11 @@ export function MemoForm({ onSubmit }: MemoFormProps) {
 
   if (!expanded) {
     return (
-      <Card className="border-2 border-dashed border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/30 transition-colors cursor-pointer">
+      <Card className="rounded-xl border-2 border-dashed border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/30 transition-colors cursor-pointer">
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="flex items-center justify-center gap-2 w-full min-h-[140px] text-muted-foreground hover:text-foreground"
+          className="flex items-center justify-center gap-2 w-full min-h-[140px] text-muted-foreground hover:text-foreground rounded-xl touch-manipulation"
         >
           <Plus className="size-6" />
           <span className="font-medium">새 메모 추가</span>
